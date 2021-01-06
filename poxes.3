@@ -1,0 +1,34 @@
+.TH POXES 3 poxes
+.SH NAME
+poxes \- minimal curses replacement
+.SH SYNOPSIS
+.B #include <poxes.h>
+.SH DESCRIPTION
+The poxes library is a primitive ncurses replacement
+that handles its most basic functionalities.
+.P
+So far it provides a way to easily switch between raw
+and cooked terminal modes, move cursor to a specific location,
+handle terminal window resize and {clear,save,restore} its contents.
+.SH FUNCTIONS
+.TP
+.B void pox_clear(void);
+clear screen
+.TP
+.B void pox_cooked(void);
+switch to cooked mode
+(use only after calling pox_raw(3))
+.TP
+.B void pox_exit(void);
+restore screen to initial state
+.TP
+.B void pox_init(void);
+save current contents of the screen and initialise poxes
+.TP
+.B void pox_move(unsigned int x, unsigned int y);
+move cursor to desired position
+.TP
+.B void pox_raw(void);
+switch to raw mode
+.SH SEE ALSO
+.BR ncurses (3x),

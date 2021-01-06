@@ -1,0 +1,35 @@
+poxes
+=====
+
+The poxes library is a primitive ncurses replacement
+that handles its most basic functionalities.
+
+So far it provides a way to easily switch between raw
+and cooked terminal modes, move cursor to a specific location,
+handle terminal window resize and {clear,save,restore} its contents.
+
+Run `make install', include with `#include <poxes.h>'
+and link by adding `-lpoxes' flag.
+
+
+Functions
+---------
+
+void pox_clear(void);
+clear screen
+
+void pox_cooked(void);
+switch to cooked mode
+(use only after calling pox_raw(3))
+
+void pox_exit(void);
+restore screen to initial state
+
+void pox_init(void);
+save current contents of the screen and initialise poxes
+
+void pox_move(unsigned int x, unsigned int y);
+move cursor to desired position
+
+void pox_raw(void);
+switch to raw mode
