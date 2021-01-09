@@ -1,7 +1,7 @@
-.PHONY: clean examples all
+.PHONY: all clean install
 
 PREFIX = /usr/local
-MANPREFIX = ${PREFIX}/man
+MANPREFIX = ${PREFIX}/share/man
 
 CC = cc
 CFLAGS = -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE \
@@ -14,8 +14,10 @@ all: libpoxes.a
 
 install: all
 	@echo installing to ${PREFIX}
+	mkdir -p ${PREFIX}/lib
 	cp libpoxes.a ${PREFIX}/lib/libpoxes.a
 	cp poxes.h ${PREFIX}/include/poxes.h
+	mkdir -p ${MANPREFIX}/man3
 	cp poxes.3 ${MANPREFIX}/man3/poxes.3
 
 libpoxes.a: ${OBJ}
