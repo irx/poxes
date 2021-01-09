@@ -25,15 +25,16 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 
 unsigned int		pox_stdscr_cols, pox_stdscr_lines;
-static struct termios	cooked;
+static struct termios	orig_conf;
 static void		(*winch_custom_handler)(void);
 
 static void		update_win_size(void);
-static void		winch_handler(int);
+static void		signal_handler(int);
 
 void
 pox_bind_resize_handler(void (*handler)(void))
@@ -51,12 +52,16 @@ pox_clear(void)
 void
 pox_cooked(void)
 {
+	struct termios cooked;
+	tcgetattr(STDIN_FILENO, &cooked);
+	cooked.c_lflag |= (ECHO | ICANON);
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &cooked);
 }
 
 void
 pox_exit(void)
 {
+	tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_conf);
 	printf("\33[?1049l");
 	fflush(stdout);
 }
@@ -68,15 +73,21 @@ update_win_size(void)
 	ioctl(0, TIOCGWINSZ, &w);
 	pox_stdscr_cols = w.ws_col;
 	pox_stdscr_lines = w.ws_row;
+	printf("%u %u\n", pox_stdscr_cols, pox_stdscr_cols);
 }
 
 int
 pox_init(void)
 {
+	struct sigaction sa;
 	printf("\33[?1049h"); /* save screen */
 	fflush(stdout);
+	tcgetattr(STDIN_FILENO, &orig_conf);
 	/* place for initialisations and stuff */
-	if (signal(SIGWINCH, winch_handler) == SIG_ERR)
+	memset(&sa, 0, sizeof(sa));
+	sigaddset(&sa.sa_mask, SIGWINCH);
+	sa.sa_handler = signal_handler;
+	if (sigaction(SIGWINCH, &sa, NULL) == -1)
 		return 1;
 	update_win_size();
 	winch_custom_handler = NULL;
@@ -94,15 +105,15 @@ void
 pox_raw(void)
 {
 	struct termios raw;
-	tcgetattr(STDIN_FILENO, &cooked);
-	raw = cooked;
+	tcgetattr(STDIN_FILENO, &raw);
 	raw.c_lflag &= ~(ECHO | ICANON);
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
 static void
-winch_handler(int signo)
+signal_handler(int signo)
 {
+	update_win_size();
 	if (signo == SIGWINCH && winch_custom_handler)
 		(*winch_custom_handler)();
 }

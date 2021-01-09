@@ -4,7 +4,7 @@ PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/man
 
 CC = cc
-CFLAGS = -std=c99 -pedantic -Wall \
+CFLAGS = -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE \
 	 -Wno-deprecated-declarations
 
 OBJ = poxes.o
